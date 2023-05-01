@@ -1,5 +1,12 @@
 import { ethers } from "ethers";
 
+/**
+ * Checks if a string matches another string or any element in an array of strings.
+ * @param {string} a - The input string to match against.
+ * @param {string[] | string} b - The string or array of strings to compare with.
+ * @param {boolean} caseInsensitive - If true, the comparison will be case-insensitive.
+ * @returns {boolean} True if there's a match, false otherwise.
+ */
 export const match = (a: string, b: string[] | string, caseInsensitive: boolean): boolean => {
   if (!a) return false;
 
@@ -18,8 +25,12 @@ export const match = (a: string, b: string[] | string, caseInsensitive: boolean)
   return a === b;
 };
 
-// JSON.stringify from ethers.BigNumber is pretty horrendous
-// So we have a custom stringify function
+/**
+ * Recursively replaces BigNumber instances with their string or hexadecimal representation.
+ * @param {any} o - The input object.
+ * @param {boolean} toHex - If true, the BigNumber values will be converted to hexadecimal.
+ * @returns {any} The transformed object.
+ */
 export const stringifyBN = (o: any, toHex: boolean): any => {
   if (o === null || o === undefined) {
     return o;
@@ -42,6 +53,11 @@ export const stringifyBN = (o: any, toHex: boolean): any => {
   }
 };
 
+/**
+ * Converts a BigNumber to an RPC-compatible hex string.
+ * @param {ethers.BigNumber} bn - The input BigNumber.
+ * @returns {string} The RPC-compatible hex string.
+ */
 export const toRpcHexString = (bn: ethers.BigNumber): string => {
   let val = bn.toHexString();
   val = "0x" + val.replace("0x", "").replace(/^0+/, "");
@@ -53,6 +69,11 @@ export const toRpcHexString = (bn: ethers.BigNumber): string => {
   return val;
 };
 
+/**
+ * Calculates the base fee for the next block based on the current block.
+ * @param {ethers.providers.Block} curBlock - The current block information.
+ * @returns {ethers.BigNumber} The base fee for the next block.
+ */
 export const calcNextBlockBaseFee = (curBlock: ethers.providers.Block): ethers.BigNumber => {
   const baseFee = curBlock.baseFeePerGas!;
   const gasUsed = curBlock.gasUsed;
