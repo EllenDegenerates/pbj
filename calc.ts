@@ -13,8 +13,10 @@ type UniV2Data = {
 
 
 /**
- * Uniswap v2; x * y = k formula
+ * 
  * Calculates the amount of token A to be supplied given the desired amount of token B to be received
+ * x * y = k
+ *
  * @param {BigNumber} bOut - The desired amount of token B to be received
  * @param {BigNumber} reserveA - The current reserve of token A in the liquidity pool
  * @param {BigNumber} reserveB - The current reserve of token B in the liquidity pool
@@ -25,22 +27,24 @@ export const getUniv2DataGivenOut = (
   reserveA: BigNumber,
   reserveB: BigNumber
 ): UniV2Data => {
-  // Underflow
+  // Underflow: Ensure newReserveB is at least 1, to prevent negative reserve values
   let newReserveB = reserveB.sub(bOut);
   if (newReserveB.lt(0) || reserveB.gt(reserveB)) {
     newReserveB = ethers.BigNumber.from(1);
   }
 
+  // Calculate the amount of token A needed to supply, considering the 0.3% fee (1000 / 997)
   const numerator = reserveA.mul(bOut).mul(1000);
   const denominator = newReserveB.mul(997);
   const aAmountIn = numerator.div(denominator).add(ethers.constants.One);
 
-  // Overflow
+  // Overflow: Ensure newReserveA doesn't overflow the max integer value
   let newReserveA = reserveA.add(aAmountIn);
   if (newReserveA.lt(reserveA)) {
     newReserveA = ethers.constants.MaxInt256;
   }
 
+  // Return the amount of token A to be supplied, and the new reserves for both tokens
   return {
     amountIn: aAmountIn,
     newReserveA,
